@@ -1,6 +1,7 @@
 import tensorflow as tf
 import cv2
 import numpy as np
+import glob
 
 # make background white or black (I forgot)
 def gray_white(gray, thresh=50):
@@ -14,30 +15,32 @@ def gray_white(gray, thresh=50):
 
 # processing pipeline
 def process_image(img):
+    image_shape = img.shape
+    img = img[5:image_shape[0]-5,5:image_shape[1]-5]
     img = cv2.resize(img, (28,28))
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = gray_white(gray, 40)
+    gray = gray_white(gray, 130)
     gray = cv2.bitwise_not(gray)
     return gray
 
+# load images by path
+def load_images(image_paths):
+    my_array = None
+    for path in image_paths:
+        test_image = cv2.imread(path)
+        processed_image = process_image(test_image)
+        image_array = processed_image.reshape(-1)
+        if my_array == None:
+            my_array = image_array
+        else:
+            my_array = np.vstack((my_array,image_array))
+    return my_array
+
+
 if __name__ == "__main__":
     # load images
-    test_1 = cv2.imread('test_images/test_1.jpg')
-    test_2 = cv2.imread('test_images/test_2.jpg')
-    test_3 = cv2.imread('test_images/test_3.jpg')
-    test_4 = cv2.imread('test_images/test_4.jpg')
-    test_5 = cv2.imread('test_images/test_5.jpg')
-    processed_1 = process_image(test_1)
-    processed_2 = process_image(test_2)
-    processed_3 = process_image(test_3)
-    processed_4 = process_image(test_4)
-    processed_5 = process_image(test_5)
-    array_1 = processed_1.reshape(-1)
-    array_2 = processed_2.reshape(-1)
-    array_3 = processed_3.reshape(-1)
-    array_4 = processed_4.reshape(-1)
-    array_5 = processed_5.reshape(-1)
-    my_array = np.vstack((array_1, array_2, array_3, array_4, array_5))
+    image_paths = glob.glob('test_images/*.png')
+    my_array = load_images(image_paths)
 
     # load the model
     loaded_graph = tf.Graph()
@@ -51,3 +54,5 @@ if __name__ == "__main__":
         predicted_logits = sess.run(predict_op,feed_dict = {x: my_array, keep_prob: 1.0})
 
     print(np.argmax(predicted_logits, axis=1))
+
+
