@@ -1,5 +1,5 @@
 # rm_vision_buff_activation
-This is the buff activation system developeed by University of Alberta DJI Robomasters 2017 team.
+This is the buff activation system developed by University of Alberta DJI Robomasters 2017 team.
 
 **Contributers**:
 
