@@ -1,9 +1,18 @@
-import cv2
+import cv2, sys, rospy, math
 import numpy as np
-import sys
-import rospy
 
 file_dir = None
+is_debug_mode = True
+
+"""
+Draw a box
+"""
+def draw_box(img, points, color):
+    # cv2.line(img, (0,0), (100,100), color, 5)
+    for i in range(len(points)):
+        cv2.line(img, tuple(points[i]), tuple(points[(i+1)%(len(points))]), color, 3)
+
+
 
 """
 Parse the file direction from argv and load the image
@@ -56,27 +65,25 @@ def analysis_and_filter_contours_for_number_searching(contours):
 
     num = 0
 
-    output = list()
+    contours_filtered = list()
+    rects = list()
+    boxes = list()
     for contour in contours:
         tempRect = cv2.minAreaRect(contour)
+        # if is_debug_mode:
+        #     print("[Debug] tempRect:", tempRect)
+
         width = tempRect[1][0]
         height = tempRect[1][1]
 
         if not (width > height):
             # tempRect = cv2.boxPoints((tempRect[0],(tempRect[1][0],tempRect[1][1]),tempRect[2] + 90.0))
-            tempRect = (tempRect[0],(tempRect[1][0],tempRect[1][1]),tempRect[2] + 90.0)
+            tempRect = (tempRect[0],(tempRect[1][1],tempRect[1][0]),tempRect[2] + 90.0)
             width = tempRect[1][0]
             height = tempRect[1][1]
 
         if(height==0):
-            height = 1
-
-        # if (num < 20):
-        #     # print(contour)
-        #     print(tempRect)
-        #     print("W:", width, "H:", height)
-        # num += 1
-        # print(num)
+            height = -1
 
         ratio_cur = width / height
 
@@ -90,9 +97,21 @@ def analysis_and_filter_contours_for_number_searching(contours):
               tempRect[2] < (-180+angleTolerance) or \
               tempRect[2] > (180-angleTolerance))
         ):
-              output.append(contour)
+              contours_filtered.append(contour)
+              rects.append(tempRect)
+              if (is_debug_mode):
+                  tempRect_points = cv2.boxPoints(tempRect)
+                  boxes.append(tempRect_points)
 
-    return output
+    return contours_filtered, rects, boxes
+
+
+
+"""
+This function get rid of redundency number boxes
+"""
+def filter_redundency_boxes():
+    return
 
 
 
@@ -110,14 +129,20 @@ if __name__ == "__main__":
 
     #find contours
     im2, contours, hierarchy = cv2.findContours(processed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    # cv2.drawContours(src_img, contours, -1, (0,255,0), 3)
+    # cv2.drawContours(src_img, contours, -1, (255,0,0), 3)
     # print(contours[0])
 
     #Analysis
-    contours = analysis_and_filter_contours_for_number_searching(contours)
-    cv2.drawContours(src_img, contours, -1, (0,255,0), 3)
+    contours, rects, number_boxes = analysis_and_filter_contours_for_number_searching(contours)
+    # cv2.drawContours(src_img, contours, -1, (255,0,255), 3)
+    box_index = 0
+    for box in number_boxes:
+        draw_box(src_img, box, (255,0,255))
+        box_center = rects[box_index][0]
+        cv2.circle(src_img, (int(round(box_center[0])), int(round(box_center[1]))), 1, (0,0,255), 5)
+        box_index += 1
     print("The size of contour list is:", len(contours))
-    print(cv2.minAreaRect(contours[0]))
+    # print(cv2.minAreaRect(contours[0]))
 
     cv2.imshow('src_img', src_img)
     cv2.waitKey(0)
