@@ -150,11 +150,48 @@ def filter_redundency_boxes(contours, rects, number_boxes):
 
 
 """
-Main function
+This function get rid of outlier number boxes
 """
-if __name__ == "__main__":
-    #load src image
-    src_img = read_image_from_file()
+def filter_outlier_boxes(contours, rects, number_boxes):
+    dist_list = [0.0] * len(rects)
+
+    for rect_i in range(len(rects)):
+        for rect_j in range(rect_i+1,len(rects)):
+            rect_i_center_x = rects[rect_i][0][0]
+            rect_i_center_y = rects[rect_i][0][1]
+            rect_j_center_x = rects[rect_j][0][0]
+            rect_j_center_y = rects[rect_j][0][1]
+
+            dist_x = abs(rect_i_center_x - rect_j_center_x)
+            dist_y = abs(rect_i_center_y - rect_j_center_y)
+
+            dist_ij = dist_x**2 + dist_y**2
+
+            dist_list[rect_i] += dist_ij
+            dist_list[rect_j] += dist_ij
+
+    # print min(dist_list)
+
+    bad_box_indexs = list()
+    good_contours = list()
+    good_rects = list()
+    good_boxes = list()
+    for i in range(min(9, len(rects))):
+        current_min_index = dist_list.index(min(dist_list))
+
+        bad_box_indexs.append(dist_list.pop(current_min_index))
+        good_contours.append(contours.pop(current_min_index))
+        good_rects.append(rects.pop(current_min_index))
+        good_boxes.append(number_boxes.pop(current_min_index))
+
+    return good_contours, good_rects, good_boxes, bad_box_indexs
+
+
+
+"""
+Major structure here
+"""
+def number_search(src_img):
 
     #preprocessing image
     processed_img = preprocessing_for_number_searching(src_img)
@@ -175,6 +212,9 @@ if __name__ == "__main__":
     # print(bad_box_indexs)
     # print(number_boxes)
 
+    #Avoid outliers
+    contours, rects, number_boxes, _ = filter_outlier_boxes(contours, rects, number_boxes)
+
     #Debug
     box_index = 0
     for box in number_boxes:
@@ -185,9 +225,38 @@ if __name__ == "__main__":
     print("The size of filtered contour list is:", len(contours))
     # print(cv2.minAreaRect(contours[0]))
 
+    return src_img
 
 
-    cv2.imshow('src_img', src_img)
-    cv2.waitKey(0)
+"""
+Main function
+"""
+if __name__ == "__main__":
+    #load src image
+    # src_img = read_image_from_file()
+    # cam = cv2.VideoCapture('./../Buff2017.mp4')
+    cam = cv2.VideoCapture('./../buff_test_video_00.mpeg')
+
+    # Define the codec and create VideoWriter object
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # fourcc = cv2.VideoWriter_fourcc(*'FMP4')
+    fourcc = cv2.VideoWriter_fourcc(*'H264')
+    out = None#cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+
+    frame_num = 1
+    segment_num = 1
+    frame_rate = 24
+    recording = False
+
+    while True:
+        ret, frame = cam.read()
+        assert ret == True
+
+        src_img = number_search(frame)
+
+        cv2.imshow('src_img', src_img)
+        key = cv2.waitKey(1000/frame_rate) & 0xff
+        if key == ord('q'):
+            break
 
     cv2.destroyAllWindows()
