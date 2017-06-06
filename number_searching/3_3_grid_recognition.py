@@ -110,8 +110,42 @@ def analysis_and_filter_contours_for_number_searching(contours):
 """
 This function get rid of redundency number boxes
 """
-def filter_redundency_boxes():
-    return
+def filter_redundency_boxes(contours, rects, number_boxes):
+    bad_box_indexs = list()
+    dist_toleration = 10
+
+    for rect_i in range(len(rects)):
+        if rect_i not in bad_box_indexs:
+            for rect_j in range(rect_i+1, len(rects)):
+                rect_i_center_x = rects[rect_i][0][0]
+                rect_i_center_y = rects[rect_i][0][1]
+                rect_j_center_x = rects[rect_j][0][0]
+                rect_j_center_y = rects[rect_j][0][1]
+
+                dist_x = abs(rect_i_center_x - rect_j_center_x)
+                dist_y = abs(rect_i_center_y - rect_j_center_y)
+
+                dist_ij = dist_x**2 + dist_y**2
+
+                if dist_ij < dist_toleration**2:
+                    rect_i_area = rects[rect_i][1][0] * rects[rect_i][1][1]
+                    rect_j_area = rects[rect_j][1][0] * rects[rect_j][1][1]
+
+                    if rect_i_area < rect_j_area:
+                        bad_box_indexs.append(rect_j)
+                    else:
+                        bad_box_indexs.append(rect_i)
+
+    good_contours = list()
+    good_rects = list()
+    good_boxes = list()
+    for i in range(len(number_boxes)):
+        if i not in bad_box_indexs:
+            good_contours.append(contours[i])
+            good_rects.append(rects[i])
+            good_boxes.append(number_boxes[i])
+
+    return good_contours, good_rects, good_boxes, bad_box_indexs
 
 
 
@@ -132,17 +166,26 @@ if __name__ == "__main__":
     # cv2.drawContours(src_img, contours, -1, (255,0,0), 3)
     # print(contours[0])
 
-    #Analysis
+    #Analysis to get boxes
     contours, rects, number_boxes = analysis_and_filter_contours_for_number_searching(contours)
     # cv2.drawContours(src_img, contours, -1, (255,0,255), 3)
+
+    #Avoid redundency boxes
+    contours, rects, number_boxes, _ = filter_redundency_boxes(contours, rects, number_boxes)
+    # print(bad_box_indexs)
+    # print(number_boxes)
+
+    #Debug
     box_index = 0
     for box in number_boxes:
         draw_box(src_img, box, (255,0,255))
         box_center = rects[box_index][0]
         cv2.circle(src_img, (int(round(box_center[0])), int(round(box_center[1]))), 1, (0,0,255), 5)
         box_index += 1
-    print("The size of contour list is:", len(contours))
+    print("The size of filtered contour list is:", len(contours))
     # print(cv2.minAreaRect(contours[0]))
+
+
 
     cv2.imshow('src_img', src_img)
     cv2.waitKey(0)
