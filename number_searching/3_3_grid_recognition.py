@@ -108,9 +108,9 @@ def analysis_and_filter_contours_for_number_searching(contours):
 
 
 """
-This function get rid of redundency number boxes
+This function get rid of redundancy number boxes
 """
-def filter_redundency_boxes(contours, rects, number_boxes):
+def filter_redundancy_boxes(contours, rects, number_boxes):
     bad_box_indexs = list()
     dist_toleration = 10
 
@@ -207,8 +207,8 @@ def number_search(src_img):
     contours, rects, number_boxes = analysis_and_filter_contours_for_number_searching(contours)
     # cv2.drawContours(src_img, contours, -1, (255,0,255), 3)
 
-    #Avoid redundency boxes
-    contours, rects, number_boxes, _ = filter_redundency_boxes(contours, rects, number_boxes)
+    #Avoid redundancy boxes
+    contours, rects, number_boxes, _ = filter_redundancy_boxes(contours, rects, number_boxes)
     # print(bad_box_indexs)
     # print(number_boxes)
 
