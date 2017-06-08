@@ -188,6 +188,17 @@ def filter_outlier_boxes(contours, rects, number_boxes):
 
 
 
+def region_of_interest(img, box):
+    x0, y0 = box[1]
+    x1, y1 = box[3]
+    x0 = int(round(x0))
+    x1 = int(round(x1))
+    y0 = int(round(y0))
+    y1 = int(round(y1))
+    roi = img[y0:y1, x0:x1]
+    return roi
+
+
 """
 Major structure here
 """
@@ -216,8 +227,11 @@ def number_search(src_img):
     contours, rects, number_boxes, _ = filter_outlier_boxes(contours, rects, number_boxes)
 
     #Debug
+    number_boxes_regions_list = list()
     box_index = 0
     for box in number_boxes:
+        number_boxes_regions_list.append(region_of_interest(src_img, box))
+
         draw_box(src_img, box, (255,0,255))
         box_center = rects[box_index][0]
         cv2.circle(src_img, (int(round(box_center[0])), int(round(box_center[1]))), 1, (0,0,255), 5)
@@ -225,15 +239,37 @@ def number_search(src_img):
     print("The size of filtered contour list is:", len(contours))
     # print(cv2.minAreaRect(contours[0]))
 
-    return src_img
+    return src_img, number_boxes_regions_list
 
 
 """
 Main function
 """
 if __name__ == "__main__":
+    """ ================ Testing with image files (START) ================ """
+    # """
+    from matplotlib import pyplot as plt
+
     #load src image
-    # src_img = read_image_from_file()
+    src_img = read_image_from_file()
+    src_img, number_boxes_regions_list = number_search(src_img)
+
+    cv2.imshow('src_img', src_img)
+    for i in range(len(number_boxes_regions_list)):
+        plt.subplot(3,3,i+1),plt.imshow(number_boxes_regions_list[i],'gray')
+        plt.title(str(i))
+        # plt.xticks([]),plt.yticks([])
+
+        # cv2.imshow(str(i), number_boxes_regions_list[i])
+        # np.stack()
+
+    key = cv2.waitKey(0)
+    plt.show()
+    # """
+    """ ================= Testing with image files (END) ================= """
+
+    """ ================ Testing with video files (START) ================ """
+    """
     # cam = cv2.VideoCapture('./../Buff2017.mp4')
     cam = cv2.VideoCapture('./../buff_test_video_00.mpeg')
 
@@ -252,11 +288,17 @@ if __name__ == "__main__":
         ret, frame = cam.read()
         assert ret == True
 
-        src_img = number_search(frame)
+        src_img, number_boxes_regions_list = number_search(frame)
 
         cv2.imshow('src_img', src_img)
+        for i in range(len(number_boxes_regions_list)):
+            cv2.imshow(str(i),number_boxes_regions_list)
+            # np.stack()
+
         key = cv2.waitKey(1000/frame_rate) & 0xff
         if key == ord('q'):
             break
+    """
+    """ ================= Testing with image files (END) ================= """
 
     cv2.destroyAllWindows()
