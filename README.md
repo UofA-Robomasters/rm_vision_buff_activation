@@ -21,6 +21,10 @@ This is the buff activation system developed by University of Alberta DJI Roboma
 
 # References
 
-
+- http://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html?highlight=drawcontours#drawcontours
+- http://answers.opencv.org/question/67150/using-minarearect-with-contour-in-python/
+- http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=medianblur#medianblur
+- http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#gaussianblur
+- https://stackoverflow.com/questions/18207181/opencv-python-draw-minarearect-rotatedrect-not-implemented
 
 
