@@ -216,7 +216,7 @@ def number_search(src_img):
         print("The size of filtered contour list is:", len(contours))
         # print(cv2.minAreaRect(contours[0]))
 
-    return src_img, number_boxes_regions_list
+    return src_img, number_boxes_regions_list, rects
 
 
 """
@@ -229,7 +229,7 @@ if __name__ == "__main__":
 
     #load src image
     src_img = read_image_from_file()
-    src_img, number_boxes_regions_list = number_search(src_img)
+    src_img, number_boxes_regions_list, _ = number_search(src_img)
 
     cv2.imshow('src_img', src_img)
 
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         ret, frame = cam.read()
         assert ret == True
 
-        src_img, number_boxes_regions_list = number_search(frame)
+        src_img, number_boxes_regions_list, _ = number_search(frame)
 
         cv2.imshow('src_img', src_img)
         for i in range(len(number_boxes_regions_list)):

@@ -81,7 +81,6 @@ def rim_extractor(src_img):
     kernel = np.ones([5, 5], np.uint8)
     gray = cv2.dilate(gray, kernel, iterations = 1)
 
-
     return gray
 
 
