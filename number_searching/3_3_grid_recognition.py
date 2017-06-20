@@ -1,17 +1,9 @@
 import cv2, sys, rospy, math
 import numpy as np
+from scipy.misc import imresize
 
 file_dir = None
 is_debug_mode = True
-
-"""
-Draw a box
-"""
-def draw_box(img, points, color):
-    # cv2.line(img, (0,0), (100,100), color, 5)
-    for i in range(len(points)):
-        cv2.line(img, tuple(points[i]), tuple(points[(i+1)%(len(points))]), color, 3)
-
 
 
 """
@@ -188,17 +180,6 @@ def filter_outlier_boxes(contours, rects, number_boxes):
 
 
 
-def region_of_interest(img, box):
-    x0, y0 = box[1]
-    x1, y1 = box[3]
-    x0 = int(round(x0))
-    x1 = int(round(x1))
-    y0 = int(round(y0))
-    y1 = int(round(y1))
-    roi = img[y0:y1, x0:x1]
-    return roi
-
-
 """
 Major structure here
 """
@@ -206,6 +187,7 @@ def number_search(src_img):
 
     #preprocessing image
     processed_img = preprocessing_for_number_searching(src_img)
+    # processed_img = preprocessing_for_number_recognition(src_img)
     # cv2.imshow('processed_img', processed_img)
     # cv2.waitKey(0)
 
@@ -226,24 +208,19 @@ def number_search(src_img):
     #Avoid outliers
     contours, rects, number_boxes, _ = filter_outlier_boxes(contours, rects, number_boxes)
 
-    #Debug
-    number_boxes_regions_list = list()
-    box_index = 0
-    for box in number_boxes:
-        number_boxes_regions_list.append(region_of_interest(src_img, box))
+    #Extracting infomation for number recognition
+    from preprocess_for_number_recognition import preprocess_for_number_recognition
+    number_boxes_regions_list = preprocess_for_number_recognition(src_img, rects, number_boxes)
 
-        draw_box(src_img, box, (255,0,255))
-        box_center = rects[box_index][0]
-        cv2.circle(src_img, (int(round(box_center[0])), int(round(box_center[1]))), 1, (0,0,255), 5)
-        box_index += 1
-    print("The size of filtered contour list is:", len(contours))
-    # print(cv2.minAreaRect(contours[0]))
+    if is_debug_mode:
+        print("The size of filtered contour list is:", len(contours))
+        # print(cv2.minAreaRect(contours[0]))
 
     return src_img, number_boxes_regions_list
 
 
 """
-Main function
+Main function (for testing)
 """
 if __name__ == "__main__":
     """ ================ Testing with image files (START) ================ """
@@ -255,7 +232,12 @@ if __name__ == "__main__":
     src_img, number_boxes_regions_list = number_search(src_img)
 
     cv2.imshow('src_img', src_img)
+
+
     for i in range(len(number_boxes_regions_list)):
+        cv2.imshow("single_test"+str(i), number_boxes_regions_list[i])
+        cv2.waitKey(0)
+
         plt.subplot(3,3,i+1),plt.imshow(number_boxes_regions_list[i],'gray')
         plt.title(str(i))
         # plt.xticks([]),plt.yticks([])
@@ -263,15 +245,16 @@ if __name__ == "__main__":
         # cv2.imshow(str(i), number_boxes_regions_list[i])
         # np.stack()
 
-    key = cv2.waitKey(0)
     plt.show()
+    key = cv2.waitKey(0)
+
     # """
     """ ================= Testing with image files (END) ================= """
 
     """ ================ Testing with video files (START) ================ """
     """
     # cam = cv2.VideoCapture('./../Buff2017.mp4')
-    cam = cv2.VideoCapture('./../buff_test_video_00.mpeg')
+    cam = cv2.VideoCapture('./../../buff_test_video_01.mpeg')
 
     # Define the codec and create VideoWriter object
     # fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -292,7 +275,7 @@ if __name__ == "__main__":
 
         cv2.imshow('src_img', src_img)
         for i in range(len(number_boxes_regions_list)):
-            cv2.imshow(str(i),number_boxes_regions_list)
+            cv2.imshow(str(i),number_boxes_regions_list[i])
             # np.stack()
 
         key = cv2.waitKey(1000/frame_rate) & 0xff
