@@ -3,14 +3,7 @@ import numpy as np
 from scipy.misc import imresize
 
 
-"""
-Draw a box
-"""
-def draw_box(img, points, color):
-    # cv2.line(img, (0,0), (100,100), color, 5)
-    for i in range(len(points)):
-        cv2.line(img, tuple(points[i]), tuple(points[(i+1)%(len(points))]), color, 10)
-
+draw_number_box_color = (255, 0, 255)
 
 
 """
@@ -65,11 +58,10 @@ def general_number_extractor(src_img):
 
 
 
-def rim_extractor(src_img):
+def rim_extractor(src_img, color):
     # select color that draw by us
-    lower = np.array([255, 0, 255])
-    upper = np.array([255, 0, 255])
-    gray = cv2.inRange(src_img, lower, upper)
+    defined_color = np.array(list(color))
+    gray = cv2.inRange(src_img, defined_color, defined_color)
 
     # resize
     gray = imresize(gray, [50, 80])
@@ -80,6 +72,7 @@ def rim_extractor(src_img):
     # enlarge rim a little bit
     kernel = np.ones([5, 5], np.uint8)
     gray = cv2.dilate(gray, kernel, iterations = 1)
+
 
     return gray
 
@@ -101,6 +94,7 @@ def region_of_interest(img, box):
 This function will extract roi after the number boxes have been found
 """
 def preprocess_for_number_recognition(src_img, rects, number_boxes):
+    global draw_number_box_color
     number_boxes_regions_list = list()
     box_index = 0
 
@@ -108,8 +102,8 @@ def preprocess_for_number_recognition(src_img, rects, number_boxes):
 
         # prepare for extracting process
         general_number_temp = general_number_extractor(region_of_interest(src_img, box))
-        draw_box(src_img, box, (255,0,255)) # draw the rim
-        rim_temp = rim_extractor(region_of_interest(src_img, box))
+        draw_box(src_img, box, draw_number_box_color) # draw the rim
+        rim_temp = rim_extractor(region_of_interest(src_img, box), draw_number_box_color)
 
         box_center = rects[box_index][0]
         cv2.circle(src_img, (int(round(box_center[0])), int(round(box_center[1]))), 1, (0,0,255), 5)
