@@ -254,7 +254,7 @@ if __name__ == "__main__":
     """ ================ Testing with video files (START) ================ """
     """
     # cam = cv2.VideoCapture('./../Buff2017.mp4')
-    cam = cv2.VideoCapture('./../../buff_test_video_01.mpeg')
+    cam = cv2.VideoCapture('./../../buff_test_video_00.mpeg')
 
     # Define the codec and create VideoWriter object
     # fourcc = cv2.VideoWriter_fourcc(*'XVID')
