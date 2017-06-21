@@ -3,10 +3,11 @@ import numpy as np
 from scipy.misc import imresize
 
 root = os.path.dirname(os.path.abspath(__file__))
-root = root+'/../number_searching'
-# print(root)
+root = root+'/..'#'/number_searching'
 sys.path.insert(0, root)
-from grid_recognition import read_image_from_file
+# print(root)
+print(os.path.dirname(root))
+from number_searching.grid_recognition import read_image_from_file
 
 file_dir = None
 is_debug_mode = True

@@ -26,5 +26,4 @@ This is the buff activation system developed by University of Alberta DJI Roboma
 - http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=medianblur#medianblur
 - http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#gaussianblur
 - https://stackoverflow.com/questions/18207181/opencv-python-draw-minarearect-rotatedrect-not-implemented
-
-
+- https://stackoverflow.com/questions/20821702/python-import-functions-from-higher-other-folder
