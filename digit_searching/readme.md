@@ -23,30 +23,39 @@ How it works:
 [image9]: ./output_images/result.jpg "result"
 
 1. Only the central part will be analysed.
+
 ![alt text][image1]
 
 2. Select red region to find digits
+
 ![alt text][image2]
 
 3. Select gray region to find digits more precisely
+
 ![alt text][image3]
 
 4. The red region is used in blob detection as teh blobs are much easier to detect in this image.
+
 ![alt text][image4]
 
 5. Select five blobs which are cloest in y
+
 ![alt text][image5]
 
 6. Use these five blobs to find the digit region
+
 ![alt text][image6]
 
 7. It is easier to do the identification in binary image
+
 ![alt text][image7]
 
 8. Rotate the image a little bit to make the vertical line more vertical
+
 ![alt text][image8]
 
 9. The final result is like this
+
 ![alt text][image9]
 
 10. Print digits on images
