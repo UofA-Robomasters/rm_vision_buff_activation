@@ -31,6 +31,7 @@ Pre-processing image
 def preprocessing_for_number_searching(src_img):
     # convert source iamge to gray scale
     gray = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.GaussianBlur(gray,(5,5),0)
 
     # threshold
     gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, \
@@ -39,6 +40,7 @@ def preprocessing_for_number_searching(src_img):
 
     # blur
     gray = cv2.medianBlur(gray,3)
+    # gray = cv2.GaussianBlur(gray,(5,5),0)
 
     return gray
 
@@ -224,7 +226,7 @@ Main function (for testing)
 """
 if __name__ == "__main__":
     """ ================ Testing with image files (START) ================ """
-    # """
+    """
     from matplotlib import pyplot as plt
 
     #load src image
@@ -248,11 +250,11 @@ if __name__ == "__main__":
     plt.show()
     key = cv2.waitKey(0)
 
-    # """
+    """
     """ ================= Testing with image files (END) ================= """
 
     """ ================ Testing with video files (START) ================ """
-    """
+    # """
     # cam = cv2.VideoCapture('./../Buff2017.mp4')
     cam = cv2.VideoCapture('./../../buff_test_video_00.mpeg')
 
@@ -281,7 +283,7 @@ if __name__ == "__main__":
         key = cv2.waitKey(1000/frame_rate) & 0xff
         if key == ord('q'):
             break
-    """
+    # """
     """ ================= Testing with image files (END) ================= """
 
     cv2.destroyAllWindows()
